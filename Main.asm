@@ -63,8 +63,36 @@ procArrGet proc
     je one_dimensional
 
     two_dimensional:
+        ; save the offset of the array into esi
+        mov ESI, ARRAY_OFFSET
+
+        ; bump our row ptr
+        mov EAX, ARRAY_Y
+        mov EBX, 4
+        mul EBX
+
+        ; move the offset of the one dimensional array to edx
+        mov ESI, [ESI+EAX]
+
+        ; find the x offset into this array
+        mov EAX, ARRAY_X
+        mov EBX, 4
+        mul EBX
+
+        ; add into the offset
+        add ESI, EAX
+
+        ; now return the variable at this address to the last variable in the entire stack
+        mov EAX, [ESI]
+        mov ARRAY_Y, EAX
+
 		popad
 		pop EBP
+
+        ; dump the stack
+        push 10
+        call printStack
+
         ret 16
 
     one_dimensional:
@@ -84,10 +112,6 @@ procArrGet proc
 
 		popad
 		pop EBP
-
-        ; Dump the stack
-        push 10
-		call PrintStack
 
         ; instructs the cpu to pop all but one variable on the stack
 		ret 12
@@ -160,11 +184,6 @@ Main proc
     pop EAX
     call WriteDec
     call Crlf
-
-
-    ; Dump the stack at this point
-    ; push 5
-    ; call PrintStack
 
     ; pop EAX
     ; call WriteDec
